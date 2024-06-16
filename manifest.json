@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "EZEZproxy",
+  "description": "東大学外から論文にアクセスする時に使用するEZproxyをより簡単に扱える拡張機能🔥",
+  "version": "0.0.1",
+  "icons": {
+    "16": "icon/icon16.png",
+    "48": "icon/icon48.png",
+    "128": "icon/icon128.png"
+  },
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://*/*"],
+      "all_frames": false,
+      "run_at": "document_start",
+      "js": ["js/content.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

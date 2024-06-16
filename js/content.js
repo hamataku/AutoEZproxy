@@ -9,7 +9,6 @@ function loadSettings(callback) {
 
 // Check if the current URL matches any of the configured patterns
 function checkAndRedirect(currentUrl) {
-  console.log("Checking URL:", currentUrl);
   if (currentUrl.includes(".idm.oclc.org")) {
     return;
   }

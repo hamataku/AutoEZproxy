@@ -4,11 +4,11 @@
   "description": "東大学外から論文にアクセスする時に使用するEZproxyをより簡単に扱える拡張機能🔥",
   "version": "0.0.1",
   "icons": {
-    "16": "icon/icon16.png",
-    "48": "icon/icon48.png",
-    "128": "icon/icon128.png"
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "content_scripts": [
     {
       "matches": ["https://*/*"],
@@ -17,6 +17,13 @@
       "js": ["js/content.js"]
     }
   ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
   "background": {
     "service_worker": "js/background.js"
   },

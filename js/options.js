@@ -1,7 +1,7 @@
 import { loadSettings, saveSettings, getProxies } from "./common.js";
 
 let proxyLists = [];
-var currentProxy = [];
+var currentProxy = undefined;
 var selectedLi = undefined;
 
 // Function to add a new URL input field with a type selector and a delete button
@@ -30,7 +30,7 @@ function addUrlInput(value = "") {
     .querySelector(".btn-remove-url")
     .addEventListener("click", function () {
       if (urlContainer.children.length === 1) {
-        alert("You must have at least one URL field.");
+        alert("AutoEZproxy(Extension)\nYou must have at least one URL field.");
         return;
       }
       newUrlDiv.remove();
@@ -41,10 +41,9 @@ function addUrlInput(value = "") {
   newUrlDiv.querySelector("input").addEventListener("input", saveUrls);
 }
 
-// 初期リストの表示
 function displayProxies(filter = "") {
   const proxyListDOM = document.getElementById("proxyList");
-  proxyListDOM.innerHTML = ""; // リストをクリア
+  proxyListDOM.innerHTML = "";
   proxyLists.forEach(function (proxy) {
     if (proxy.name.toLowerCase().includes(filter.toLowerCase())) {
       let li = document.createElement("li");
@@ -59,14 +58,14 @@ function displayProxies(filter = "") {
         li.classList.add("active");
         saveSettings({ proxy: proxy });
       });
-      if (currentProxy.name === proxy.name) {
+      if (currentProxy !== undefined && currentProxy.name === proxy.name) {
         selectedLi = li;
         li.classList.add("active");
       }
       proxyListDOM.appendChild(li);
     }
   });
-  selectedLi.scrollIntoView({ block: "center" });
+  if (selectedLi !== undefined) selectedLi.scrollIntoView({ block: "center" });
 }
 
 async function main() {
@@ -82,14 +81,11 @@ async function main() {
     name: item.name,
     url: item.url,
   }));
-  console.log(proxyLists);
 
-  // 検索ボックスの入力イベントリスナー
   document.getElementById("searchBox").addEventListener("input", function () {
     displayProxies(this.value);
   });
 
-  // 初期リストの表示
   displayProxies();
 }
 
@@ -102,7 +98,56 @@ function saveUrls() {
   saveSettings({ urls: urls });
 }
 
-document.getElementById("add-url").addEventListener("click", function () {
+function exportSettings() {
+  loadSettings(function (items) {
+    const dataStr = JSON.stringify(items, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "AutoEZproxy.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+function handleFileSelect(event) {
+  const fileInput = document.getElementById("importFile");
+  const file = fileInput.files[0];
+
+  if (!file) {
+    console.log("No file selected.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const settings = JSON.parse(e.target.result);
+      saveSettings(settings);
+      location.reload();
+    } catch (error) {
+      console.error("Failed to parse JSON file:", error);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function openFileDialog() {
+  const fileInput = document.getElementById("importFile");
+  fileInput.click();
+}
+
+document
+  .getElementById("importButton")
+  .addEventListener("click", openFileDialog);
+document
+  .getElementById("importFile")
+  .addEventListener("change", handleFileSelect);
+document
+  .getElementById("exportButton")
+  .addEventListener("click", exportSettings);
+document.getElementById("addRule").addEventListener("click", function () {
   addUrlInput();
 });
 

@@ -1,51 +1,48 @@
-import { loadSettings } from "./common.js";
+import {
+  checkRedirectUrl,
+  loadSettings,
+  saveSettings,
+  isUrlRegex,
+} from "./common.js";
 
-var currentUrl = "";
+if (typeof globalThis.browser === "undefined") {
+  globalThis.browser = chrome;
+}
 
-chrome.tabs.query({ active: true, currentWindow: true }, (e) => {
+let proxySwitch = document.getElementById("proxy-switch");
+
+browser.tabs.query({ active: true, currentWindow: true }, (e) => {
   const url = new URL(e[0].url);
   document.getElementById("current-url").textContent = url.hostname;
-  currentUrl = url.hostname;
-});
 
-loadSettings(function (data) {
-  var toggleSwitch = document.getElementById("switch");
-  if (currentUrl.includes(".idm.oclc.org")) {
-    toggleSwitch.checked = false;
-    toggleSwitch.disabled = true;
-    return;
-  }
-  for (let i = 0; i < data.urls.length; i++) {
-    const url = data.urls[i];
-    let regex;
+  checkRedirectUrl(url.href, function (data) {
+    proxySwitch.checked = data.registered;
+    proxySwitch.disabled = data.disabled;
+  });
 
-    regex = new RegExp(`^https?://${url.replace(/\*/g, ".*")}`);
-    break;
-
-    if (regex.test(currentUrl)) {
-      toggleSwitch.checked = true;
+  proxySwitch.addEventListener("mouseup", function () {
+    if (proxySwitch.checked) {
+      // remove
+      loadSettings(function (data) {
+        for (let i = 0; i < data.urls.length; i++) {
+          if (isUrlRegex(data.urls[i], url.href)) {
+            data.urls.splice(i, 1);
+            break;
+          }
+        }
+        saveSettings({ urls: data.urls });
+      });
+    } else {
+      // add
+      loadSettings(function (data) {
+        let urls = data.urls;
+        urls.push(url.hostname);
+        saveSettings({ urls: urls });
+      });
     }
-  }
+  });
 });
 
-// document.getElementById("add-btn").addEventListener("click", function () {
-//   chrome.storage.sync.get(["urls", "types"], function (data) {
-//     const urls = data.urls || [];
-//     const types = data.types || [];
-//     urls.push(currentUrl);
-//     types.push("Host Wildcard");
-//     chrome.storage.sync.set({ urls: urls, types: types }, function () {
-//       console.log("URLs and types saved:", urls, types);
-//       var alertBox = document.getElementById("alertBox");
-//       alertBox.textContent = '"' + currentUrl + '" is added successfully!';
-//       alertBox.classList.add("show");
-//       setTimeout(function () {
-//         alertBox.classList.remove("show");
-//       }, 5000);
-//     });
-//   });
-// });
-
-document.getElementById("option-btn").addEventListener("click", function () {
-  chrome.runtime.openOptionsPage();
+document.getElementById("optionButton").addEventListener("click", function () {
+  browser.runtime.openOptionsPage();
 });

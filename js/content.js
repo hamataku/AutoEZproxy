@@ -1,21 +1,35 @@
-import { loadSettings } from "./common.js";
+import { checkRedirectUrl } from "./common.js";
 
-// Check if the current URL matches any of the configured patterns
+if (typeof globalThis.browser === "undefined") {
+  globalThis.browser = chrome;
+}
+
 function checkAndRedirect(currentUrl) {
-  loadSettings(function (data) {
-    for (let i = 0; i < data.urls.length; i++) {
-      const url = data.urls[i];
-      let regex;
-      regex = new RegExp(
-        `https?://${url.replace(/\*/g, "[^?]*").replace(/\./g, "\\.")}`
-      );
+  checkRedirectUrl(currentUrl, function (data) {
+    browser.storage.local.get(["previousRedirect"], function (localData) {
+      let previousRedirect = localData.previousRedirect || "";
 
-      if (regex.test(currentUrl)) {
-        const newUrl = data.proxy.url.replace("$@", currentUrl);
-        window.location.href = newUrl;
-        return;
+      if (data.newUrl !== undefined) {
+        // if redirecting to the same URL, increment the count
+        if (previousRedirect === currentUrl) {
+          const url = new URL(previousRedirect);
+          alert(
+            'AutoEZproxy(Extension)\nRedirect loop detected with "' +
+              url.hostname +
+              '". Please check your settings.\n'
+          );
+          return;
+        }
+        // Set the new URL as the current URL before redirecting
+        browser.storage.local.set({
+          previousRedirect: currentUrl,
+        });
+        // redirect
+        window.location.href = data.newUrl;
+      } else {
+        browser.storage.local.set({ previousRedirect: "" });
       }
-    }
+    });
   });
 }
 

@@ -38,7 +38,7 @@
                 class="nav-link"
                 aria-current="page"
                 href="https://github.com/hamataku/AutoEZproxy"
-                >Github</a
+                >GitHub</a
               >
             </li>
           </ul>
@@ -63,9 +63,29 @@
           <h3>Redirect rules</h3>
           <form class="mt-4" id="proxy-form">
             <div id="url-container"></div>
-            <button type="button" class="btn btn-primary" id="add-url">
+            <button type="button" class="btn btn-primary me-2" id="addRule">
               + Add Rule
             </button>
+            <button
+              type="button"
+              class="btn btn-outline-dark me-2"
+              id="importButton"
+            >
+              Import
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-dark"
+              id="exportButton"
+            >
+              Export
+            </button>
+            <input
+              type="file"
+              id="importFile"
+              accept=".json"
+              style="display: none"
+            />
           </form>
         </div>
       </div>

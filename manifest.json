@@ -1,20 +1,28 @@
 {
   "manifest_version": 3,
   "name": "AutoEZproxy",
-  "description": "Auto reload pages through your EZproxy",
-  "version": "0.0.1",
+  "description": "Automatically reload journal pages through your EZproxy",
+  "homepage_url": "https://github.com/hamataku/AutoEZproxy",
+  "version": "0.1",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
   "permissions": ["storage", "tabs"],
+  "host_permissions": ["https://libproxy-db.org/proxies.json"],
+  "web_accessible_resources": [
+    {
+      "resources": ["js/content.js", "js/common.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "content_scripts": [
     {
       "matches": ["https://*/*"],
       "all_frames": false,
       "run_at": "document_start",
-      "js": ["js/content.js"]
+      "js": ["js/loader.js"]
     }
   ],
   "action": {
@@ -23,9 +31,6 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
-  },
-  "background": {
-    "service_worker": "js/background.js"
   },
   "options_ui": {
     "page": "options.html",

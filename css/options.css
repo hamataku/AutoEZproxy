@@ -1,0 +1,7 @@
+.search-container {
+  margin-top: 50px;
+}
+.list-container {
+  max-height: 280px;
+  overflow-y: auto;
+}

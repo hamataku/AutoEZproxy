@@ -1,45 +1,17 @@
-// Load URLs and types from Chrome storage
-function loadSettings(callback) {
-  chrome.storage.sync.get(["urls", "types"], function (data) {
-    const urls = data.urls || [];
-    const types = data.types || [];
-    callback(urls, types);
-  });
-}
+import { loadSettings } from "./common.js";
 
 // Check if the current URL matches any of the configured patterns
 function checkAndRedirect(currentUrl) {
-  if (currentUrl.includes(".idm.oclc.org")) {
-    return;
-  }
-  loadSettings(function (urls, types) {
-    for (let i = 0; i < urls.length; i++) {
-      const url = urls[i];
-      const type = types[i];
+  loadSettings(function (data) {
+    for (let i = 0; i < data.urls.length; i++) {
+      const url = data.urls[i];
       let regex;
-
-      switch (type) {
-        case "Host Wildcard":
-          regex = new RegExp(`^https?://.*${url.replace(/\*/g, ".*")}`);
-          break;
-        case "URL Wildcard":
-          regex = new RegExp(`^https?://${url.replace(/\*/g, ".*")}`);
-          break;
-        case "URL regex":
-          regex = new RegExp(url);
-          break;
-        default:
-          continue;
-      }
+      regex = new RegExp(
+        `https?://${url.replace(/\*/g, "[^?]*").replace(/\./g, "\\.")}`
+      );
 
       if (regex.test(currentUrl)) {
-        const url = new URL(currentUrl);
-        let newUrl =
-          "https://" +
-          url.hostname.replaceAll(".", "-") +
-          ".utokyo.idm.oclc.org" +
-          url.pathname +
-          url.search;
+        const newUrl = data.proxy.url.replace("$@", currentUrl);
         window.location.href = newUrl;
         return;
       }

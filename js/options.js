@@ -1,22 +1,17 @@
+import { loadSettings, saveSettings, getProxies } from "./common.js";
+
+let proxyLists = [];
+var currentProxy = [];
+var selectedLi = undefined;
+
 // Function to add a new URL input field with a type selector and a delete button
-function addUrlInput(value = "", type = "Host Wildcard") {
+function addUrlInput(value = "") {
   const urlContainer = document.getElementById("url-container");
   const newUrlIndex = urlContainer.children.length + 1;
   const newUrlDiv = document.createElement("div");
   newUrlDiv.className = "mb-3";
   newUrlDiv.innerHTML = `
         <div class="input-group">
-            <select class="form-select" id="type${newUrlIndex}" name="types[]">
-                <option value="Host Wildcard" ${
-                  type === "Host Wildcard" ? "selected" : ""
-                }>Host Wildcard</option>
-                <option value="URL Wildcard" ${
-                  type === "URL Wildcard" ? "selected" : ""
-                }>URL Wildcard</option>
-                <option value="URL regex" ${
-                  type === "URL regex" ? "selected" : ""
-                }>URL regex</option>
-            </select>
             <input type="text" class="form-control" id="url${newUrlIndex}" name="urls[]" placeholder="Enter URL" value="${value}">
             <button type="button" class="btn btn-danger btn-remove-url">
                 <div style='color: #eee;'>
@@ -34,7 +29,6 @@ function addUrlInput(value = "", type = "Host Wildcard") {
   newUrlDiv
     .querySelector(".btn-remove-url")
     .addEventListener("click", function () {
-      console.log(urlContainer.children.length);
       if (urlContainer.children.length === 1) {
         alert("You must have at least one URL field.");
         return;
@@ -45,36 +39,71 @@ function addUrlInput(value = "", type = "Host Wildcard") {
 
   // Add event listener to input and select fields to save on change
   newUrlDiv.querySelector("input").addEventListener("input", saveUrls);
-  newUrlDiv.querySelector("select").addEventListener("change", saveUrls);
 }
 
-// Load URLs and types from Chrome storage and display them
-function loadUrls() {
-  chrome.storage.sync.get(["urls", "types"], function (data) {
-    const urls = data.urls || [];
-    const types = data.types || [];
-    for (let i = 0; i < urls.length; i++) {
-      addUrlInput(urls[i], types[i]);
+// 初期リストの表示
+function displayProxies(filter = "") {
+  const proxyListDOM = document.getElementById("proxyList");
+  proxyListDOM.innerHTML = ""; // リストをクリア
+  proxyLists.forEach(function (proxy) {
+    if (proxy.name.toLowerCase().includes(filter.toLowerCase())) {
+      let li = document.createElement("li");
+      li.className = "list-group-item";
+      li.textContent = proxy.name;
+      li.addEventListener("click", function () {
+        currentProxy = proxy;
+        if (selectedLi !== undefined) {
+          selectedLi.classList.remove("active");
+        }
+        selectedLi = this;
+        li.classList.add("active");
+        saveSettings({ proxy: proxy });
+      });
+      if (currentProxy.name === proxy.name) {
+        selectedLi = li;
+        li.classList.add("active");
+      }
+      proxyListDOM.appendChild(li);
     }
   });
+  selectedLi.scrollIntoView({ block: "center" });
 }
 
-// Save URLs and types to Chrome storage
+async function main() {
+  loadSettings(function (data) {
+    currentProxy = data.proxy;
+    for (let i = 0; i < data.urls.length; i++) {
+      addUrlInput(data.urls[i]);
+    }
+  });
+
+  const proxies = await getProxies();
+  proxyLists = proxies.map((item) => ({
+    name: item.name,
+    url: item.url,
+  }));
+  console.log(proxyLists);
+
+  // 検索ボックスの入力イベントリスナー
+  document.getElementById("searchBox").addEventListener("input", function () {
+    displayProxies(this.value);
+  });
+
+  // 初期リストの表示
+  displayProxies();
+}
+
+// Save URLs to Chrome storage
 function saveUrls() {
   const urlInputs = document.querySelectorAll('input[name="urls[]"]');
-  const typeSelects = document.querySelectorAll('select[name="types[]"]');
   const urls = Array.from(urlInputs)
     .map((input) => input.value.trim())
     .filter((url) => url !== "");
-  const types = Array.from(typeSelects).map((select) => select.value);
-  chrome.storage.sync.set({ urls: urls, types: types }, function () {
-    console.log("URLs and types saved:", urls, types);
-  });
+  saveSettings({ urls: urls });
 }
 
 document.getElementById("add-url").addEventListener("click", function () {
   addUrlInput();
 });
 
-// Initialize the form with saved URLs and types
-loadUrls();
+main();

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "EZEZproxy",
-  "description": "東大学外から論文にアクセスする時に使用するEZproxyをより簡単に扱える拡張機能🔥",
+  "description": "Auto reload pages through your EZproxy",
   "version": "0.0.1",
   "icons": {
     "16": "icons/icon16.png",

@@ -1,1 +1,1 @@
-# EZEZproxy
+# AutoEZproxy

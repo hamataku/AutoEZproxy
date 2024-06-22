@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "EZEZproxy",
+  "name": "AutoEZproxy",
   "description": "Auto reload pages through your EZproxy",
   "version": "0.0.1",
   "icons": {

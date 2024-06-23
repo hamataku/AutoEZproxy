@@ -20,8 +20,16 @@ browser.tabs.query({ active: true, currentWindow: true }, (e) => {
     proxySwitch.disabled = data.disabled;
   });
 
-  proxySwitch.addEventListener("mouseup", function () {
+  proxySwitch.addEventListener("click", function () {
     if (proxySwitch.checked) {
+      // add
+      loadSettings(function (data) {
+        let urls = data.urls;
+        urls.push(url.hostname);
+        saveSettings({ urls: urls });
+      });
+      location.reload();
+    } else {
       // remove
       loadSettings(function (data) {
         for (let i = 0; i < data.urls.length; i++) {
@@ -31,13 +39,6 @@ browser.tabs.query({ active: true, currentWindow: true }, (e) => {
           }
         }
         saveSettings({ urls: data.urls });
-      });
-    } else {
-      // add
-      loadSettings(function (data) {
-        let urls = data.urls;
-        urls.push(url.hostname);
-        saveSettings({ urls: urls });
       });
     }
   });

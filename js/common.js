@@ -49,7 +49,7 @@ export async function getProxies() {
 
 export function isRedirectUrl(url, currentUrl) {
   return new RegExp(
-    `https?://${url.replace(/\*/g, "[^?]*").replace(/\./g, "\\.")}`
+    `^https?://${url.replace(/\*/g, "[^?]*").replace(/\./g, "\\.")}`
   ).test(currentUrl);
 }
 

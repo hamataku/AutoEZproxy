@@ -3,7 +3,7 @@
   "name": "AutoEZproxy",
   "description": "Automatically reload journal pages through your EZproxy",
   "homepage_url": "https://github.com/hamataku/AutoEZproxy",
-  "version": "0.1",
+  "version": "1",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

@@ -55,12 +55,15 @@ function displayProxies(filter = "") {
       li.className = "list-group-item";
       li.textContent = proxy.name;
       li.addEventListener("click", function () {
-        currentProxy = proxy;
         if (selectedLi !== undefined) {
           selectedLi.classList.remove("active");
         }
         selectedLi = this;
         li.classList.add("active");
+        proxy.customProxy = "";
+        document.getElementById("customProxyInput").value = "";
+        document.getElementById("proxyError").classList.add("d-none");
+        currentProxy = proxy;
         saveSettings({ proxy: proxy });
       });
       if (currentProxy !== undefined && currentProxy.name === proxy.name) {
@@ -73,11 +76,27 @@ function displayProxies(filter = "") {
   if (selectedLi !== undefined) selectedLi.scrollIntoView({ block: "center" });
 }
 
+function setCustomProxy(filter = "") {
+  let proxy = { name: "", url: "", customProxy: filter };
+  currentProxy = proxy;
+  saveSettings({ proxy: proxy });
+  displayProxies();
+}
+
 async function main() {
   loadSettings(function (data) {
     currentProxy = data.proxy;
     for (let i = 0; i < data.urls.length; i++) {
       addUrlInput(data.urls[i]);
+    }
+
+    try {
+      if (currentProxy.customProxy !== "") {
+        document.getElementById("customProxyInput").value =
+          currentProxy.customProxy;
+      }
+    } catch (error) {
+      document.getElementById("proxyError").classList.remove("d-none");
     }
   });
 
@@ -86,10 +105,6 @@ async function main() {
     name: item.name,
     url: item.url,
   }));
-
-  document.getElementById("searchBox").addEventListener("input", function () {
-    displayProxies(this.value);
-  });
 
   displayProxies();
 }
@@ -143,6 +158,14 @@ function openFileDialog() {
 }
 
 // Event listeners
+document.getElementById("searchBox").addEventListener("input", function () {
+  displayProxies(this.value);
+});
+document
+  .getElementById("customProxyInput")
+  .addEventListener("input", function () {
+    setCustomProxy(this.value);
+  });
 document
   .getElementById("importButton")
   .addEventListener("click", openFileDialog);

@@ -2,7 +2,14 @@ if (typeof globalThis.browser === "undefined") {
   globalThis.browser = chrome;
 }
 
-const default_urls = ["*.sciencedirect.com", "*.springer.com", "*.ieee.org"];
+const default_urls = [
+  "*.sciencedirect.com",
+  "*.springer.com",
+  "*.ieee.org",
+  "*.nature.com",
+  "*.wiley.com",
+  "*.aip.org",
+];
 
 export function saveSettings({ urls = undefined, proxy = undefined }) {
   loadSettings(function (data) {
@@ -64,16 +71,25 @@ export function checkRedirectUrl(currentUrl, callback) {
       browser.runtime.sendMessage({ action: "openOptionsPage" });
       return;
     }
+
+    // if the proxy is set to custom proxy
+    let proxyUrl = data.proxy.url;
+    if (data.proxy.url === "") {
+      if (data.proxy.customProxy === "") return;
+      proxyUrl = data.proxy.customProxy;
+    }
+    console.log("Proxy URL:", proxyUrl);
+
     for (let i = 0; i < data.urls.length; i++) {
       if (isRedirectUrl(data.urls[i], currentUrl)) {
-        newUrl = data.proxy.url.replace("$@", currentUrl);
+        newUrl = proxyUrl.replace("$@", currentUrl);
         registered = true;
         break;
       }
     }
 
     const currentUrlObj = new URL(currentUrl);
-    const proxyUrlObj = new URL(data.proxy.url);
+    const proxyUrlObj = new URL(proxyUrl);
 
     // if the current URL is already redirected
     if (currentUrlObj.hostname.includes(proxyUrlObj.hostname)) {

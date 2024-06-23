@@ -1,3 +1,4 @@
+// To use modules in content.js
 (async () => {
   if (typeof globalThis.browser === "undefined") {
     globalThis.browser = chrome;

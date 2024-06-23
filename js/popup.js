@@ -2,7 +2,7 @@ import {
   checkRedirectUrl,
   loadSettings,
   saveSettings,
-  isUrlRegex,
+  isRedirectUrl,
 } from "./common.js";
 
 if (typeof globalThis.browser === "undefined") {
@@ -25,7 +25,7 @@ browser.tabs.query({ active: true, currentWindow: true }, (e) => {
       // remove
       loadSettings(function (data) {
         for (let i = 0; i < data.urls.length; i++) {
-          if (isUrlRegex(data.urls[i], url.href)) {
+          if (isRedirectUrl(data.urls[i], url.href)) {
             data.urls.splice(i, 1);
             break;
           }

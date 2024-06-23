@@ -26,6 +26,15 @@ export function loadSettings(callback) {
   });
 }
 
+export function resetSettings() {
+  browser.storage.sync.set(
+    { urls: default_urls, proxy: undefined },
+    function () {
+      location.reload();
+    }
+  );
+}
+
 export async function getProxies() {
   let proxies;
   try {
@@ -38,7 +47,7 @@ export async function getProxies() {
   return proxies;
 }
 
-export function isUrlRegex(url, currentUrl) {
+export function isRedirectUrl(url, currentUrl) {
   return new RegExp(
     `https?://${url.replace(/\*/g, "[^?]*").replace(/\./g, "\\.")}`
   ).test(currentUrl);
@@ -46,16 +55,17 @@ export function isUrlRegex(url, currentUrl) {
 
 export function checkRedirectUrl(currentUrl, callback) {
   let newUrl = undefined;
-  let registered = false;
-  let disabled = false;
+  let registered = false; // already in the list or redirected
+  let disabled = false; // cannot be redirected
 
   loadSettings(function (data) {
     if (data.proxy === undefined) {
+      // open options page in background service if no proxy is set
       browser.runtime.sendMessage({ action: "openOptionsPage" });
       return;
     }
     for (let i = 0; i < data.urls.length; i++) {
-      if (isUrlRegex(data.urls[i], currentUrl)) {
+      if (isRedirectUrl(data.urls[i], currentUrl)) {
         newUrl = data.proxy.url.replace("$@", currentUrl);
         registered = true;
         break;
@@ -65,7 +75,7 @@ export function checkRedirectUrl(currentUrl, callback) {
     const currentUrlObj = new URL(currentUrl);
     const proxyUrlObj = new URL(data.proxy.url);
 
-    // if the current URL is already the proxy URL
+    // if the current URL is already redirected
     if (currentUrlObj.hostname.includes(proxyUrlObj.hostname)) {
       registered = true;
       disabled = true;

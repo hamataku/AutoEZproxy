@@ -1,10 +1,15 @@
-import { loadSettings, saveSettings, getProxies } from "./common.js";
+import {
+  loadSettings,
+  saveSettings,
+  resetSettings,
+  getProxies,
+} from "./common.js";
 
 let proxyLists = [];
 var currentProxy = undefined;
 var selectedLi = undefined;
 
-// Function to add a new URL input field with a type selector and a delete button
+// Function to add a new URL input field with a delete button
 function addUrlInput(value = "") {
   const urlContainer = document.getElementById("url-container");
   const newUrlIndex = urlContainer.children.length + 1;
@@ -34,10 +39,10 @@ function addUrlInput(value = "") {
         return;
       }
       newUrlDiv.remove();
-      saveUrls(); // Save after removing
+      saveUrls();
     });
 
-  // Add event listener to input and select fields to save on change
+  // Add event listener to input fields to save on change
   newUrlDiv.querySelector("input").addEventListener("input", saveUrls);
 }
 
@@ -89,7 +94,6 @@ async function main() {
   displayProxies();
 }
 
-// Save URLs to Chrome storage
 function saveUrls() {
   const urlInputs = document.querySelectorAll('input[name="urls[]"]');
   const urls = Array.from(urlInputs)
@@ -138,6 +142,7 @@ function openFileDialog() {
   fileInput.click();
 }
 
+// Event listeners
 document
   .getElementById("importButton")
   .addEventListener("click", openFileDialog);
@@ -149,6 +154,9 @@ document
   .addEventListener("click", exportSettings);
 document.getElementById("addRule").addEventListener("click", function () {
   addUrlInput();
+});
+document.getElementById("resetButton").addEventListener("click", function () {
+  resetSettings();
 });
 
 main();

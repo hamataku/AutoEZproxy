@@ -10,7 +10,7 @@ function checkAndRedirect(currentUrl) {
       let previousRedirect = localData.previousRedirect || "";
 
       if (data.newUrl !== undefined) {
-        // if redirecting to the same URL, increment the count
+        // if redirecting to the same URL, show an alert
         if (previousRedirect === currentUrl) {
           const url = new URL(previousRedirect);
           alert(

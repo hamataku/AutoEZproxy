@@ -17,6 +17,10 @@ you will be redirected to
 
 You can also set up your own EZproxy server in the option page.
 
+## Privacy Policy
+
+This extension does not collect any personal information. Your settings are saved to your account and cannot be accessed by external parties.
+
 ## Disclaimer
 
 We take no responsibility for any damage caused by using this extension. Use it at your own risk.

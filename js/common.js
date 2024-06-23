@@ -78,7 +78,6 @@ export function checkRedirectUrl(currentUrl, callback) {
       if (data.proxy.customProxy === "") return;
       proxyUrl = data.proxy.customProxy;
     }
-    console.log("Proxy URL:", proxyUrl);
 
     for (let i = 0; i < data.urls.length; i++) {
       if (isRedirectUrl(data.urls[i], currentUrl)) {
